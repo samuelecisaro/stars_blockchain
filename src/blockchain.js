@@ -178,12 +178,13 @@ class Blockchain {
         return new Promise(async (resolve, reject) => {
             let previous_block_hash = null;
             self.chain.forEach(function(block) {
-                if(!block.validate()) reject(new Error('Block ' + block.height + ' validation went wrong'));
+                if(!block.validate()) errorLog.push('Block ' + block.height + ' validation went wrong');
                 if(block.height > 0) {
-                    if(!block.previousBlockHash === previous_block_hash) reject(new Error('Block ' + block.height + ' has wrong previous block hash'));
+                    if(!block.previousBlockHash === previous_block_hash) errorLog.push('Block ' + block.height + ' has wrong previous block hash');
                 }
                 previous_block_hash = block.hash;
             });
+            (errorLog.length > 0) ? resolve(errorLog) : resolve("Validation complete: Success");
         });
     }
 
