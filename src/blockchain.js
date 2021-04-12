@@ -108,7 +108,14 @@ class Blockchain {
     submitStar(address, message, signature, star) {
         let self = this;
         return new Promise(async (resolve, reject) => {
-
+            let message_time = parseInt(message.split(':')[1]);
+            let currentTime = parseInt(new Date().getTime().toString().slice(0, -3));
+            let is_less_than_five_minutes = Math.round((currentTime - message_time) / 60);
+            if(!is_less_than_five_minutes < 5) reject(new Error('Request got too much time.'));
+            if(bitcoinMessage.verify(message, address, signature)) reject(new Error('Message check error.'));
+                let new_block = new Block(star);
+                self._addBlock(new_block);
+                resolve(new_block);
         });
     }
 
