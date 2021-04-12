@@ -128,8 +128,14 @@ class Blockchain {
     getBlockByHash(hash) {
         let self = this;
         return new Promise((resolve, reject) => {
-
+            let block_by_hash = self.chain.filter(_searchByHash, hash);
+            if(block_by_hash.length > 1) reject(new Error('Multiple block found with the same hash.'));
+            resolve(block_by_hash);
         });
+    }
+
+    _searchByHash(item, hash) {
+        return (item.hash == hash);
     }
 
     /**
