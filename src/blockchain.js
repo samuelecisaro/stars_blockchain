@@ -114,6 +114,7 @@ class Blockchain {
             if(!is_less_than_five_minutes < 5) reject(new Error('Request got too much time.'));
             if(bitcoinMessage.verify(message, address, signature)) reject(new Error('Message check error.'));
                 let new_block = new Block(star);
+                new_block.owner = address;
                 self._addBlock(new_block);
                 resolve(new_block);
         });
