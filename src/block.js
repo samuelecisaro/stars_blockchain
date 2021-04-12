@@ -19,7 +19,8 @@ class Block {
 		this.hash = null;                                           // Hash of the block
 		this.height = 0;                                            // Block Height (consecutive number of each block)
 		this.body = Buffer(JSON.stringify(data)).toString('hex');   // Will contain the transactions stored in the block, by default it will encode the data
-		this.time = 0;                                              // Timestamp for the Block creation
+    this.time = 0;                                                  // Timestamp for the Block creation
+        this.star_owner = null;                                     // wallet address of the star owner
 		this.previousBlockHash = null;                              // Reference to the previous Block Hash
     }
     
