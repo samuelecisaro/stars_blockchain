@@ -162,7 +162,7 @@ class Blockchain {
         let self = this;
         let stars = [];
         return new Promise((resolve, reject) => {
-            resolve(this.chain.filter(star => item.owner === address));
+            resolve(self.chain.filter(star => item.owner === address));
         });
     }
 
@@ -176,7 +176,7 @@ class Blockchain {
         let self = this;
         let errorLog = [];
         return new Promise(async (resolve, reject) => {
-
+            
         });
     }
 
