@@ -70,9 +70,6 @@ class Blockchain {
                 block.previousBlockHash = self.chain[self.chain.length - 1].hash;
             }
             block.hash = SHA256(JSON.stringify(block)).toString();
-            if (block.previousBlockHash != null && block.height > 0) {
-                reject(new Error("error"));
-            }
             self.chain.push(block);
             self.height = self.chain.length - 1;
             resolve(block);
@@ -117,12 +114,12 @@ class Blockchain {
             let message_time = parseInt(message.split(':')[1]);
             let currentTime = parseInt(new Date().getTime().toString().slice(0, -3));
             let is_less_than_five_minutes = Math.round((currentTime - message_time) / 60);
-            if (!is_less_than_five_minutes < 5) reject(new Error('Request got too much time.'));
-            if (bitcoinMessage.verify(message, address, signature)) reject(new Error('Message check error.'));
+            if (is_less_than_five_minutes > 5) reject(new Error('Request got too much time.'));
+            if (!bitcoinMessage.verify(message, address, signature)) reject(new Error('Message check error.'));
             let new_block = new BlockClass.Block(star);
-            new_block.owner = address;
-            self._addBlock(new_block);
-            resolve(new_block);
+            new_block.star_owner = address;
+            const block_result = await self._addBlock(new_block);
+            (block_result) ? resolve(block_result) : reject(new Error("Error adding block to the blockchain"));
         });
     }
 
