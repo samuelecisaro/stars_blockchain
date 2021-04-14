@@ -64,12 +64,18 @@ class Blockchain {
     _addBlock(block) {
         let self = this;
         return new Promise(async (resolve, reject) => {
-            block.heigth = self.getChainHeight();
+            block.height = self.chain.length;
             block.time = new Date().getTime().toString().slice(0, -3);
-            if (block.heigth > 0) {
-                block.previousBlockHash = self.chain[this.chain.length - 1].hash;
+            if (block.height > 0) {
+                block.previousBlockHash = self.chain[self.chain.length - 1].hash;
             }
             block.hash = SHA256(JSON.stringify(block)).toString();
+            if (block.previousBlockHash != null && block.height > 0) {
+                reject(new Error("error"));
+            }
+            self.chain.push(block);
+            self.height = self.chain.length - 1;
+            resolve(block);
         });
     }
 
@@ -83,7 +89,7 @@ class Blockchain {
      */
     requestMessageOwnershipVerification(address) {
         return new Promise((resolve) => {
-            const message = `${address}:${new Date().getTime().toString().slice(0,-3)}:starRegistry`;
+            const message = `${address}:${new Date().getTime().toString().slice(0, -3)}:starRegistry`;
             resolve(message);
         });
     }
@@ -111,12 +117,12 @@ class Blockchain {
             let message_time = parseInt(message.split(':')[1]);
             let currentTime = parseInt(new Date().getTime().toString().slice(0, -3));
             let is_less_than_five_minutes = Math.round((currentTime - message_time) / 60);
-            if(!is_less_than_five_minutes < 5) reject(new Error('Request got too much time.'));
-            if(bitcoinMessage.verify(message, address, signature)) reject(new Error('Message check error.'));
-                let new_block = new Block(star);
-                new_block.owner = address;
-                self._addBlock(new_block);
-                resolve(new_block);
+            if (!is_less_than_five_minutes < 5) reject(new Error('Request got too much time.'));
+            if (bitcoinMessage.verify(message, address, signature)) reject(new Error('Message check error.'));
+            let new_block = new Block(star);
+            new_block.owner = address;
+            self._addBlock(new_block);
+            resolve(new_block);
         });
     }
 
@@ -130,7 +136,7 @@ class Blockchain {
         let self = this;
         return new Promise((resolve, reject) => {
             let block_by_hash = self.chain.filter(block => block.hash === hash);
-            if(block_by_hash.length > 1) reject(new Error('Multiple block found with the same hash.'));
+            if (block_by_hash.length > 1) reject(new Error('Multiple block found with the same hash.'));
             resolve(block_by_hash[0]);
         });
     }
@@ -162,7 +168,7 @@ class Blockchain {
         let self = this;
         let stars = [];
         return new Promise((resolve, reject) => {
-            resolve(self.chain.filter(star => item.owner === address));
+            resolve(self.chain.filter(star => item.star_owner === address));
         });
     }
 
@@ -177,10 +183,10 @@ class Blockchain {
         let errorLog = [];
         return new Promise(async (resolve, reject) => {
             let previous_block_hash = null;
-            self.chain.forEach(function(block) {
-                if(!block.validate()) errorLog.push('Block ' + block.height + ' validation went wrong');
-                if(block.height > 0) {
-                    if(!block.previousBlockHash === previous_block_hash) errorLog.push('Block ' + block.height + ' has wrong previous block hash');
+            self.chain.forEach(function (block) {
+                if (!block.validate()) errorLog.push('Block ' + block.height + ' validation went wrong');
+                if (block.height > 0) {
+                    if (!block.previousBlockHash === previous_block_hash) errorLog.push('Block ' + block.height + ' has wrong previous block hash');
                 }
                 previous_block_hash = block.hash;
             });
