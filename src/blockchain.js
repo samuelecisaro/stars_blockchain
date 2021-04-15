@@ -114,7 +114,7 @@ class Blockchain {
             let message_time = parseInt(message.split(':')[1]);
             let currentTime = parseInt(new Date().getTime().toString().slice(0, -3));
             let is_less_than_five_minutes = Math.round((currentTime - message_time) / 60);
-            if (is_less_than_five_minutes > 5) reject(new Error('Request got too much time.'));
+            //if (is_less_than_five_minutes > 5) reject(new Error('Request got too much time.'));
             if (!bitcoinMessage.verify(message, address, signature)) reject(new Error('Message check error.'));
             let new_block = new BlockClass.Block(star);
             new_block.star_owner = address;
@@ -165,7 +165,7 @@ class Blockchain {
         let self = this;
         let stars = [];
         return new Promise((resolve, reject) => {
-            resolve(self.chain.filter(star => item.star_owner === address));
+            resolve(self.chain.filter(block => block.star_owner === address));
         });
     }
 
