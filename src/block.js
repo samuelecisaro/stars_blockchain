@@ -71,7 +71,7 @@ class Block {
             // Parse the data to an object to be retrieve.
             const decoded_data = new Buffer(encoded_data, 'hex');
             // Resolve with the data if the object isn't the Genesis block
-            (self.heigth > 0) ? resolve(decoded_data) : reject(new Error("Error: Genesis block detected"));
+            (self.height > 0) ? resolve(decoded_data) : reject(new Error("Error: Genesis block detected"));
         });
     }
 
