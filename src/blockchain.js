@@ -116,7 +116,8 @@ class Blockchain {
             let is_less_than_five_minutes = Math.round((currentTime - message_time) / 60);
             if (is_less_than_five_minutes > 5) reject(new Error('Request got too much time.'));
             if (!bitcoinMessage.verify(message, address, signature)) reject(new Error('Message check error.'));
-            let new_block = new BlockClass.Block({star_owner: address, data: star})
+            let new_block = new BlockClass.Block(star);
+            new_block.star_owner = address;
             const block_result = await self._addBlock(new_block);
             (block_result) ? resolve(block_result) : reject(new Error("Error adding block to the blockchain"));
         });
@@ -163,8 +164,13 @@ class Blockchain {
     getStarsByWalletAddress(address) {
         let self = this;
         let stars = [];
-        return new Promise((resolve, reject) => {
-            resolve(self.chain.filter(block => block.star_owner === address));
+        return new Promise(async (resolve, reject) => {
+            let blocks_encoded = self.chain.filter(block => block.star_owner === address);
+            let block_decoded = [];
+            for (let block of blocks_encoded) {
+                block_decoded.push(await block.getBData());
+            }
+            (block_decoded) ? resolve(block_decoded) : reject(new Error("No stars owned ny this address"));
         });
     }
 
