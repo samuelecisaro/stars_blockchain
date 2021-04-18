@@ -72,7 +72,7 @@ class Blockchain {
             block.hash = SHA256(JSON.stringify(block)).toString();
             self.chain.push(block);
             self.height = self.chain.length - 1;
-            resolve(block);
+            (self.validateChain()) ? resolve(block) : reject(new Error("Error adding the block"));
         });
     }
 
@@ -116,8 +116,7 @@ class Blockchain {
             let is_less_than_five_minutes = Math.round((currentTime - message_time) / 60);
             if (is_less_than_five_minutes > 5) reject(new Error('Request got too much time.'));
             if (!bitcoinMessage.verify(message, address, signature)) reject(new Error('Message check error.'));
-            let new_block = new BlockClass.Block(star);
-            new_block.star_owner = address;
+            let new_block = new BlockClass.Block({star_owner: address, data: star})
             const block_result = await self._addBlock(new_block);
             (block_result) ? resolve(block_result) : reject(new Error("Error adding block to the blockchain"));
         });
@@ -180,14 +179,16 @@ class Blockchain {
         let errorLog = [];
         return new Promise(async (resolve, reject) => {
             let previous_block_hash = null;
-            self.chain.forEach(function (block) {
-                if (!block.validate()) errorLog.push('Block ' + block.height + ' validation went wrong');
+            for (let block of self.chain) {
+                if(!await block.validate()) {
+                    errorLog.push('Block ' + block.height + ' validation went wrong');
+                }
                 if (block.height > 0) {
                     if (!block.previousBlockHash === previous_block_hash) errorLog.push('Block ' + block.height + ' has wrong previous block hash');
                 }
                 previous_block_hash = block.hash;
-            });
-            (errorLog.length > 0) ? resolve(errorLog) : resolve("Validation complete: Success");
+            };
+            (errorLog.length > 0) ? reject(errorLog) : resolve("Validation complete: Success");
         });
     }
 
