@@ -70,8 +70,9 @@ class Block {
             // Decoding the data to retrieve the JSON representation of the object
             // Parse the data to an object to be retrieve.
             const decoded_data = new Buffer(encoded_data, 'hex');
+            let parsed_data = JSON.parse(decoded_data);
             // Resolve with the data if the object isn't the Genesis block
-            (self.height > 0) ? resolve(decoded_data) : reject(new Error("Error: Genesis block detected"));
+            (self.height > 0) ? resolve(parsed_data) : reject(new Error("Error: Genesis block detected"));
         });
     }
 
